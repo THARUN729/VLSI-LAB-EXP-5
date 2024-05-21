@@ -25,53 +25,41 @@ STEP:12 Load the Bit file into the SPARTAN 6 FPGA
 ![image](https://github.com/navaneethans/VLSI-LAB-EXP-5/assets/6987778/34ec5d63-2b3b-4511-81ef-99f4572d5869)
 # CODE:
 ```
-module fsm( clk, rst, inp, outp);
-input clk, rst, inp;
-output outp;
-reg [1:0] state;
-reg outp;
-always @(posedge clk, posedge rst)
-begin
-if(rst)
-state<=2'b00;
+module fsm(clk, rst, x, z);
+input clk, rst, x;
+output z;
+reg [2:1] present_state, NEXT_STATE;
+parameter S0=2'b00, S1=2'b01, S2=2'b10, S3=2'b11;
+always@(x,present_state)
+case(present_state)
+S0: if(x)
+NEXT_STATE=S1;
 else
-begin
-case(state)
-2'b00:
-begin
-if(inp) state <=2'b01;
-else state <=2'b10;
-end
-2'b01:
-begin
-if (inp) state <=2'b11;
-else state<=2'b10;
-end
-2'b10:
-begin
-if (inp) state<=2'b01;
-else state <=2'b11;
-end
-2'b11:
-begin
-if (inp) state <=2'b01;
-else state <=2'b10;
-end
+NEXT_STATE=S0;
+S1: if(x)
+NEXT_STATE=S1;
+else
+NEXT_STATE=S2;
+S2: if(x)
+NEXT_STATE=S3;
+else
+NEXT_STATE=S0;
+S3: if(x)
+NEXT_STATE=S1;
+else
+NEXT_STATE=S2;
 endcase
-end
-end
-always @(posedge clk, posedge rst)
-begin
+always@(negedge rst, posedge clk)
 if(rst)
-outp <= 0;
-else if(state == 2'b11)
-outp <= 1;
-else outp<= 0;
-end
+present_state<=S0;
+else
+present_state<=NEXT_STATE;
+assign z=(present_state==S3);
 endmodule
 ```
 # OUTPUT:
-![image](https://github.com/THARUN729/VLSI-LAB-EXP-5/assets/161407766/682ea117-8c3f-462d-b19c-7ecfd7766bab)
+![image](https://github.com/THARUN729/VLSI-LAB-EXP-5/assets/161407766/db2c1dc0-fc07-430b-97e5-5b9c5334f568)
+
 # RESULT:
 Hence the finite state machine has been simulated and synthesised using xilinx ISE.
 
